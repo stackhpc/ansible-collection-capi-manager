@@ -94,134 +94,83 @@ azimuth_curated_sizes: []
   #   description: >-
   #     {% raw %}{{ cpus }} CPUs, {{ ram }} RAM, {{ disk }} disk, {{ ephemeral_disk }} ephemeral disk{% endraw %}
 
-# Settings for the configured authenticators
-#   Configuration for the password authenticator
-azimuth_authenticator_password_enabled: true
-azimuth_authenticator_password_label: "Username + Password"
-azimuth_authenticator_password_hidden: false
-azimuth_authenticator_password_auth_url: "{{ azimuth_openstack_auth_url }}"
-azimuth_authenticator_password_domain: "{{ azimuth_openstack_domain }}"
-azimuth_authenticator_password_verify_ssl: "{{ azimuth_openstack_verify_ssl }}"
+# Settings for OpenStack authentication
+#   The Keystone auth URL
+azimuth_openstack_auth_url: "{{ undef(hint = 'azimuth_openstack_auth_url is required') }}"
+#   The default domain to use when authenticating with OpenStack
+azimuth_openstack_domain: default
+#   The region to use when discovering OpenStack services
+azimuth_openstack_region: RegionOne
+#   The interface - should rarely need to be changed from the default
+azimuth_openstack_interface: public
+#   Whether or not to verify SSL
+azimuth_openstack_verify_ssl: true
 #   Configuration for the appcred authenticator
-#     By default, the appcred authenticator is enabled but hidden
+#     The appcred authenticator is always enabled but hidden by default
 #     This is useful when using the SDK as automation can be given an appcred
 #     but the option is not presented to users in the choice form
-azimuth_authenticator_appcred_enabled: true
-azimuth_authenticator_appcred_label: "Application Credential"
 azimuth_authenticator_appcred_hidden: true
-azimuth_authenticator_appcred_auth_url: "{{ azimuth_openstack_auth_url }}"
-azimuth_authenticator_appcred_verify_ssl: "{{ azimuth_openstack_verify_ssl }}"
+#   Configuration for the password authenticator
+azimuth_authenticator_password_enabled: true
+#   Simplified configuration for a single domain
+#   These variables are not used if azimuth_authenticator_password_domains is specified
+azimuth_authenticator_password_domain: "{{ azimuth_openstack_domain }}"
+azimuth_authenticator_password_label: "Username + Password"
+#   The list of domains to make available as authentication options
+azimuth_authenticator_password_domains:
+  - # The name of the domain
+    name: "{{ azimuth_authenticator_password_domain }}"
+    # A human-readable label, used in the selection form
+    label: "{{ azimuth_authenticator_password_label }}"
 #   Configuration for the federated authenticator
 azimuth_authenticator_federated_enabled: false
-azimuth_authenticator_federated_hidden: false
-azimuth_authenticator_federated_auth_url: "{{ azimuth_openstack_auth_url }}"
 #   Simplified configuration for a single IDP
 #   These variables are not used if azimuth_authenticator_federated_identity_providers is specified
 azimuth_authenticator_federated_label: "Federated"
-azimuth_authenticator_federated_provider: >-
-  {{-
-    undef(hint = 'azimuth_authenticator_federated_provider is required')
-    if azimuth_authenticator_federated_enabled
-    else None
-  }}
 azimuth_authenticator_federated_protocol: >-
   {{-
     undef(hint = 'azimuth_authenticator_federated_protocol is required')
     if azimuth_authenticator_federated_enabled
     else None
   }}
+azimuth_authenticator_federated_provider:
 #   The list of identity providers to make available
 azimuth_authenticator_federated_identity_providers:
-    # A name to identify the identity provider within Azimuth
-  - name: "{{ azimuth_authenticator_federated_provider }}_{{ azimuth_authenticator_federated_protocol }}"
-    # A human-readble label for the identity provider, used in the selection form
-    label: "{{ azimuth_authenticator_federated_label }}"
-    # The Keystone identity provider and protocol to use
+  - # The Keystone identity provider and protocol to use
     # The provider is optional, and if it IS NOT given, URLs will be of the form:
     #   <auth url>/auth/OS-FEDERATION/websso/<protocol>
     # If a provider IS given, URLs will be of the following form:
     #   <auth_url>/auth/OS-FEDERATION/identity_providers/<provider>/protocols/<protocol>/websso
     # It is recommended to specify a provider if known, as it redirects straight to the IdP
-    # instead of via the ugly Keystone splash page
-    provider: "{{ azimuth_authenticator_federated_provider }}"
+    # instead of the Keystone selection page
     protocol: "{{ azimuth_authenticator_federated_protocol }}"
-#   List of authenticators in the order in which they should appear in the form
-
-# Additional authenticators to include
-azimuth_authenticators_extra: []
-# Example for authenticating with an additional Keystone domain:
-# - hidden: false
-#   label: "What shows up on login dropdown menu"
-#   name: a_unique_name
-#   type: openstack-password
-#   openstackPassword:
-#     authUrl: https://keystone.openstack.example.com/v3
-#     domain: my-domain
-#     verifySsl: true
-
-azimuth_authenticators: >-
+    provider: "{{ azimuth_authenticator_federated_provider }}"
+    # A human-readble label for the identity provider, used in the selection form
+    label: "{{ azimuth_authenticator_federated_label }}"
+# The authentication settings, structured as defaults + overrides
+azimuth_authentication_defaults:
+  type: openstack
+  openstack:
+    authUrl: "{{ azimuth_openstack_auth_url }}"
+    region: "{{ azimuth_openstack_region }}"
+    interface: "{{ azimuth_openstack_interface }}"
+    verifySsl: "{{ azimuth_openstack_verify_ssl }}"
+    appcred:
+      hidden: "{{ azimuth_authenticator_appcred_hidden }}"
+    password:
+      enabled: "{{ azimuth_authenticator_password_enabled }}"
+      domains: "{{ azimuth_authenticator_password_domains }}"
+    federated:
+      enabled: "{{ azimuth_authenticator_federated_enabled }}"
+      identityProviders: "{{ azimuth_authenticator_federated_identity_providers }}"
+azimuth_authentication_overrides: {}
+azimuth_authentication: >-
   {{-
-    [] +
-      (
-        [
-          {
-            "name": "federated",
-            "type": "openstack-federation",
-            "hidden": azimuth_authenticator_federated_hidden,
-            "openstackFederation": {
-              "authUrl": azimuth_authenticator_federated_auth_url,
-              "identityProviders": azimuth_authenticator_federated_identity_providers,
-            },
-          },
-        ]
-        if azimuth_authenticator_federated_enabled
-        else []
-      ) +
-      (
-        [
-          {
-            "name": "password",
-            "label": azimuth_authenticator_password_label,
-            "hidden": azimuth_authenticator_password_hidden,
-            "type": "openstack-password",
-            "openstackPassword": {
-              "authUrl": azimuth_authenticator_password_auth_url,
-              "domain": azimuth_authenticator_password_domain,
-              "verifySsl": azimuth_authenticator_password_verify_ssl,
-            },
-          },
-        ]
-        if azimuth_authenticator_password_enabled
-        else []
-      ) +
-      (
-        [
-          {
-            "name": "appcred",
-            "label": azimuth_authenticator_appcred_label,
-            "hidden": azimuth_authenticator_appcred_hidden,
-            "type": "openstack-application-credential",
-            "openstackApplicationCredential": {
-              "authUrl": azimuth_authenticator_appcred_auth_url,
-              "verifySsl": azimuth_authenticator_appcred_verify_ssl,
-            },
-          },
-        ]
-        if azimuth_authenticator_appcred_enabled
-        else []
-      ) + azimuth_authenticators_extra
+    azimuth_authentication_defaults |
+      combine(azimuth_authentication_overrides, recursive = True)
   }}
 
-
 # OpenStack provider settings
-#   The Keystone auth URL
-azimuth_openstack_auth_url: "{{ undef(hint = 'azimuth_openstack_auth_url is required') }}"
-#   The domain
-azimuth_openstack_domain: default
-#   The interface - should rarely need to be changed from the default
-azimuth_openstack_interface: public
-#   Whether or not to verify SSL
-azimuth_openstack_verify_ssl: true
 #   The template to use when searching for the internal network
 #   Only used if the internal network is not tagged
 #   If given, network auto-creation is disabled
@@ -388,7 +337,7 @@ azimuth_release_defaults:
     documentationUrl: "{{ azimuth_documentation_url }}"
     supportUrl: "{{ azimuth_support_url }}"
     curatedSizes: "{{ azimuth_curated_sizes }}"
-  authenticators: "{{ azimuth_authenticators }}"
+  authentication: "{{ azimuth_authentication }}"
   provider:
     openstack: "{{ azimuth_openstack_provider }}"
   apps: >-

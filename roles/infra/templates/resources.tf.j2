@@ -124,6 +124,11 @@ resource "openstack_compute_instance_v2" "node" {
   network {
     port = openstack_networking_port_v2.port_internal.id
   }
+  lifecycle {
+    replace_triggered_by = [
+      openstack_compute_keypair_v2.keypair_deploy
+    ]
+  }
 }
 
 resource "openstack_blockstorage_volume_v3" "data_volume" {

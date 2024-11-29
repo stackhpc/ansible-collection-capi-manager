@@ -1,0 +1,23 @@
+name: lint
+on: pull_request
+jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+      
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install test dependencies.
+        run: |
+          pip3 install -U ansible ansible-lint
+
+      - name: Run Ansible lint playbooks
+        run:  ansible-lint playbooks --profile min
+
+      - name: Run Ansible lint playbooks
+        run:  ansible-lint roles --profile min

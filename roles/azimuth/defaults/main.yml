@@ -97,10 +97,10 @@ azimuth_curated_sizes: []
 # Settings for OpenStack authentication
 #   The Keystone auth URL
 azimuth_openstack_auth_url: "{{ undef(hint = 'azimuth_openstack_auth_url is required') }}"
-#   The default domain to use when authenticating with OpenStack
+#   The domain to use when authenticating with OpenStack
 azimuth_openstack_domain: default
 #   The region to use when discovering OpenStack services
-azimuth_openstack_region: RegionOne
+azimuth_openstack_region:
 #   The interface - should rarely need to be changed from the default
 azimuth_openstack_interface: public
 #   Whether or not to verify SSL

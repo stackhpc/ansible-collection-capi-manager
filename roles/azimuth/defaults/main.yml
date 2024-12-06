@@ -3,7 +3,7 @@
 # The chart to use
 azimuth_chart_repo: https://azimuth-cloud.github.io/azimuth
 azimuth_chart_name: azimuth
-azimuth_chart_version: 0.13.0
+azimuth_chart_version: 0.13.1-dev.0.feat-auth-refactor.7
 
 # Release information for the Azimuth release
 azimuth_release_namespace: azimuth
@@ -150,19 +150,52 @@ azimuth_authenticator_federated_identity_providers:
 # The authentication settings, structured as defaults + overrides
 azimuth_authentication_defaults:
   type: openstack
-  openstack:
-    authUrl: "{{ azimuth_openstack_auth_url }}"
-    region: "{{ azimuth_openstack_region }}"
-    interface: "{{ azimuth_openstack_interface }}"
-    verifySsl: "{{ azimuth_openstack_verify_ssl }}"
-    appcred:
-      hidden: "{{ azimuth_authenticator_appcred_hidden }}"
-    password:
-      enabled: "{{ azimuth_authenticator_password_enabled }}"
-      domains: "{{ azimuth_authenticator_password_domains }}"
-    federated:
-      enabled: "{{ azimuth_authenticator_federated_enabled }}"
-      identityProviders: "{{ azimuth_authenticator_federated_identity_providers }}"
+  openstack: >-
+    {{-
+      {
+        "authUrl": azimuth_openstack_auth_url,
+        "interface": azimuth_openstack_interface,
+        "verifySsl": azimuth_openstack_verify_ssl,
+        "appcred": {
+          "hidden": azimuth_authenticator_appcred_hidden,
+        },
+        "password": {
+          "enabled": azimuth_authenticator_password_enabled,
+        },
+        "federated": {
+          "enabled": azimuth_authenticator_federated_enabled,
+        },
+      } |
+        combine(
+          { "region": azimuth_openstack_region }
+          if azimuth_openstack_region
+          else {}
+        ) |
+        combine(
+          (
+            {
+              "password": {
+                "domains": azimuth_authenticator_password_domains,
+              },
+            }
+            if azimuth_authenticator_password_enabled
+            else {}
+          ),
+          recursive = True
+        ) |
+        combine(
+          (
+            {
+              "federated": {
+                "identityProviders": azimuth_authenticator_federated_identity_providers,
+              },
+            }
+            if azimuth_authenticator_federated_enabled
+            else {}
+          ),
+          recursive = True
+        )
+    }}
 azimuth_authentication_overrides: {}
 azimuth_authentication: >-
   {{-
@@ -194,10 +227,6 @@ azimuth_openstack_internal_net_dns_nameservers: []
 azimuth_openstack_provider: >-
   {{-
     {
-      "authUrl": azimuth_openstack_auth_url,
-      "domain": azimuth_openstack_domain,
-      "interface": azimuth_openstack_interface,
-      "verifySsl": azimuth_openstack_verify_ssl,
       "manilaProjectShareGB": azimuth_openstack_manila_project_share_gb,
       "createInternalNet": azimuth_openstack_create_internal_net,
       "internalNetCidr": azimuth_openstack_internal_net_cidr

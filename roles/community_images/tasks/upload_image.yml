@@ -51,6 +51,8 @@
       set_fact:
         community_images_image_download_path: >-
           {{ (community_images_workdir, community_images_image_spec.name + '.download') | path_join }}
+        community_images_image_bundle_path: >-
+          {{ (community_images_workdir, community_images_image_spec.name + '.bundle') | path_join }}
         community_images_image_decompress_path: >-
           {{ (community_images_workdir, community_images_image_spec.name + '.decompress') | path_join }}
         community_images_image_convert_path: >-
@@ -82,6 +84,21 @@
         dest: "{{ community_images_image_download_path }}"
         checksum: "{{ community_images_image_spec.checksum | default(omit) }}"
         timeout: 600
+
+    - name: "Download signature bundle - {{ community_images_image_spec.name }}"
+      get_url:
+        url: "{{ community_images_image_spec.bundle_url }}"
+        dest: "{{ community_images_image_bundle_path }}"
+        timeout: 600
+      when: community_images_image_spec.bundle_url
+
+    - name: "Validate signature - {{ community_images_image_spec.name }}"
+      shell: |
+        cosign verify-blob {{ community_images_image_download_path }} \
+          --bundle {{ community_images_image_bundle_path }} \
+          --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+          --certificate-identity-regexp="https://github.com/stackhpc/azimuth-images/.github/.*"
+      when: community_images_image_spec.bundle_url
 
     - name: "Uncompress image (bzip2) - {{ community_images_image_spec.name }}"
       shell: "bunzip2 -dc {{ community_images_image_download_path }} > {{ community_images_image_decompress_path }}"

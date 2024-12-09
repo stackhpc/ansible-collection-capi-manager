@@ -63,6 +63,7 @@ community_images_azimuth_images: |-
     "{{ dest_key }}": {
       "name": "{{ image.name }}",
       "source_url": "{{ image.url }}",
+      "bundle_url": "{{ image.get('cosign-bundle-url') }}",
       "checksum": "{{ image.checksum }}",
       "source_disk_format": "qcow2",
       "container_format": "bare",

@@ -1,0 +1,35 @@
+---
+
+# TODO: Add sshPrivateKeySecretRef field to mkdocs-helm and create secret separately here?
+
+- name: Install operator docs site on target Kubernetes cluster
+  kubernetes.core.helm:
+    chart_ref: "{{ mkdocs_chart_name }}"
+    chart_repo_url: "{{ mkdocs_chart_repo }}"
+    chart_version: "{{ mkdocs_chart_version }}"
+    release_state: "{{ 'present' if mkdocs_operator_docs_enabled else 'absent' }}"
+    release_namespace: "{{ mkdocs_release_namespace }}"
+    release_name: operator-docs
+    release_values: "{{ mkdocs_operator_docs_release_values }}"
+    atomic: yes
+    create_namespace: yes
+    wait: yes
+    wait_timeout: "{{ mkdocs_wait_timeout }}"
+
+
+- name: Install user docs site on target Kubernetes cluster
+  kubernetes.core.helm:
+    chart_ref: "{{ mkdocs_chart_name }}"
+    chart_repo_url: "{{ mkdocs_chart_repo }}"
+    chart_version: "{{ mkdocs_chart_version }}"
+    release_state: "{{ 'present' if mkdocs_user_docs_enabled else 'absent' }}"
+    release_namespace: "{{ mkdocs_release_namespace }}"
+    release_name: user-docs
+    release_values: "{{ mkdocs_user_docs_release_values }}"
+    atomic: yes
+    create_namespace: yes
+    wait: yes
+    wait_timeout: "{{ mkdocs_wait_timeout }}"
+
+# TODO: How to we trigger a docs rebuild if Helm values haven't changed (but remote docs have)?
+# Restart nginx pod? Add k8s cronjob?

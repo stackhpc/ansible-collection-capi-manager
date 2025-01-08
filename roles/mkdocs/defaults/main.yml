@@ -1,0 +1,54 @@
+---
+
+# Whether to enable self-hosted documentation sites
+mkdocs_enabled: true
+mkdocs_operator_docs_enabled: "{{ mkdocs_enabled }}"
+mkdocs_user_docs_enabled: "{{ mkdocs_enabled }}"
+
+# The Helm chart to use
+mkdocs_chart_repo: https://azimuth-cloud.github.io/mkdocs-helm
+mkdocs_chart_name: mkdocs-helm
+mkdocs_chart_version: 0.1.0
+
+# Helm Release information
+# TODO: Are we happy with this namespace? Maybe 'azimuth' namespace instead?
+mkdocs_release_namespace: mkdocs
+
+# The timeout to wait for chart deployment to become ready
+mkdocs_wait_timeout: 5m
+
+# Optional SSH private key to use for accessing private repos
+mkdocs_deploy_ssh_private_key:
+
+# The values for the operator docs release
+mkdocs_operator_docs_repo: https://github.com/azimuth-cloud/azimuth-config
+mkdocs_operator_docs_branch: stable # TODO: Can we make this match deployed release tag?
+mkdocs_operator_docs_release_defaults:
+  repo: "{{ mkdocs_operator_docs_repo }}"
+  branch: "{{ mkdocs_operator_docs_branch }}"
+  requirementsPath: requirements-docs.txt
+  sshPrivateKey: "{{ mkdocs_deploy_ssh_private_key }}"
+
+mkdocs_operator_docs_release_overrides: {}
+mkdocs_operator_docs_release_values: >-
+  {{-
+    mkdocs_operator_docs_release_defaults |
+      combine(mkdocs_operator_docs_release_overrides, recursive = True)
+  }}
+
+# The values for the user docs release
+# TODO: Move these docs to azimuth-config repo
+mkdocs_user_docs_repo: https://github.com/azimuth-cloud/azimuth-user-docs
+mkdocs_user_docs_branch: # TODO: Can we make this match deployed release tag?
+mkdocs_user_docs_release_defaults:
+  repo: "{{ mkdocs_user_docs_repo }}"
+  branch: "{{ mkdocs_user_docs_branch }}"
+  requirementsPath: requirements.txt
+  sshPrivateKey: "{{ mkdocs_deploy_ssh_private_key }}"
+
+mkdocs_user_docs_release_overrides: {}
+mkdocs_user_docs_release_values: >-
+  {{-
+    mkdocs_user_docs_release_defaults |
+      combine(mkdocs_user_docs_release_overrides, recursive = True)
+  }}

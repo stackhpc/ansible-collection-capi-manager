@@ -266,6 +266,79 @@ admin_dashboard_ingress_kubernetes_dashboard:
   port: "{{ admin_dashboard_ingress_kubernetes_dashboard_port }}"
   tls_secret_name: "{{ admin_dashboard_ingress_kubernetes_dashboard_tls_secret_name }}"
 
+#####
+# NOTE(scott): We're slightly hijacking the admin dashboards functionality here
+# since the static docs pages are not strictly admin-only dashboards but it's much
+# easier to reuse the existing functionality rather than duplicating the role.
+#####
+
+# Settings for the operator docs ingress
+#   The namespace for the ingress
+admin_dashboard_ingress_operator_docs_namespace: mkdocs
+#   The name for the ingress
+admin_dashboard_ingress_operator_docs_name: operator-docs
+#   The host for the ingress
+admin_dashboard_ingress_operator_docs_host: >-
+  {{-
+    "{}.{}".format(ingress_operator_docs_subdomain, ingress_base_domain)
+    if ingress_operator_docs_subdomain is defined and ingress_base_domain is defined
+    else undef(hint = 'admin_dashboard_ingress_operator_docs_host is required')
+  }}
+#   The name of the service for the ingress
+admin_dashboard_ingress_operator_docs_service: operator-docs-mkdocs-helm
+#   The name of the service port for the ingress
+admin_dashboard_ingress_operator_docs_port: http
+#   The name of the secret containing the certificate for the ingress
+admin_dashboard_ingress_operator_docs_tls_secret_name: >-
+  {{-
+    admin_dashboard_ingress_tls_wildcard_secret_name
+    if admin_dashboard_ingress_tls_wildcard_certificate
+    else admin_dashboard_ingress_operator_docs_name ~ '-tls'
+  }}
+#   The ingress definition
+admin_dashboard_ingress_operator_docs:
+  name: "{{ admin_dashboard_ingress_operator_docs_name }}"
+  namespace: "{{ admin_dashboard_ingress_operator_docs_namespace }}"
+  host: "{{ admin_dashboard_ingress_operator_docs_host }}"
+  service: "{{ admin_dashboard_ingress_operator_docs_service }}"
+  port: "{{ admin_dashboard_ingress_operator_docs_port }}"
+  tls_secret_name: "{{ admin_dashboard_ingress_operator_docs_tls_secret_name }}"
+
+# Settings for the user docs ingress
+#   The namespace for the ingress
+admin_dashboard_ingress_user_docs_namespace: mkdocs
+#   The name for the ingress
+admin_dashboard_ingress_user_docs_name: user-docs
+#   The host for the ingress
+admin_dashboard_ingress_user_docs_host: >-
+  {{-
+    "{}.{}".format(ingress_user_docs_subdomain, ingress_base_domain)
+    if ingress_user_docs_subdomain is defined and ingress_base_domain is defined
+    else undef(hint = 'admin_dashboard_ingress_user_docs_host is required')
+  }}
+#   The name of the service for the ingress
+admin_dashboard_ingress_user_docs_service: user-docs-mkdocs-helm
+#   The name of the service port for the ingress
+admin_dashboard_ingress_user_docs_port: http
+#   The name of the secret containing the certificate for the ingress
+admin_dashboard_ingress_user_docs_tls_secret_name: >-
+  {{-
+    admin_dashboard_ingress_tls_wildcard_secret_name
+    if admin_dashboard_ingress_tls_wildcard_certificate
+    else admin_dashboard_ingress_user_docs_name ~ '-tls'
+  }}
+#   The ingress definition
+admin_dashboard_ingress_user_docs:
+  name: "{{ admin_dashboard_ingress_user_docs_name }}"
+  namespace: "{{ admin_dashboard_ingress_user_docs_namespace }}"
+  host: "{{ admin_dashboard_ingress_user_docs_host }}"
+  service: "{{ admin_dashboard_ingress_user_docs_service }}"
+  port: "{{ admin_dashboard_ingress_user_docs_port }}"
+  tls_secret_name: "{{ admin_dashboard_ingress_user_docs_tls_secret_name }}"
+  # We want TLS but not auth annotations for user docs
+  annotations: "{{ admin_dashboard_ingress_tls_annotations if admin_dashboard_ingress_tls_enabled else {} }}"
+  # annotations: "{{ admin_dashboard_ingress_annotations if false else {} }}" # Don't want auth for user docs
+
 # The list of ingresses to create
 admin_dashboard_ingresses: >-
   {{-
@@ -276,6 +349,8 @@ admin_dashboard_ingresses: >-
       admin_dashboard_ingress_ara,
       admin_dashboard_ingress_helm_dashboard,
       admin_dashboard_ingress_kubernetes_dashboard,
+      admin_dashboard_ingress_operator_docs,
+      admin_dashboard_ingress_user_docs,
     ] |
       select() |
       list

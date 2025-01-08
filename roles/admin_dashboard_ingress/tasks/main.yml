@@ -66,7 +66,7 @@
         name: "{{ item.name }}"
         namespace: "{{ item.namespace }}"
         labels: "{{ admin_dashboard_ingress_labels }}"
-        annotations: "{{ admin_dashboard_ingress_annotations }}"
+        annotations: "{{ item.annotations | default(admin_dashboard_ingress_annotations) }}"
       spec: >-
         {{-
           {

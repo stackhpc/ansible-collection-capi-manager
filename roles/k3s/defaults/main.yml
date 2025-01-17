@@ -1,7 +1,7 @@
 ---
 
 k3s_repo: https://github.com/k3s-io/k3s
-k3s_version: v1.31.2+k3s1
+k3s_version: v1.32.0+k3s1
 k3s_binary_url: "{{ k3s_repo }}/releases/download/{{ k3s_version }}/k3s"
 k3s_binary_checksum_url: "{{ k3s_repo }}/releases/download/{{ k3s_version }}/sha256sum-amd64.txt"
 k3s_binary_checksum: "sha256:{{ lookup('url', k3s_binary_checksum_url, wantlist = True) | first | split | first }}"

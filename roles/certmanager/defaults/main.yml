@@ -3,7 +3,7 @@
 # The chart to use
 certmanager_chart_repo: https://charts.jetstack.io
 certmanager_chart_name: cert-manager
-certmanager_chart_version: v1.16.2
+certmanager_chart_version: v1.16.3
 
 # Release information for the cert-manager release
 certmanager_release_namespace: cert-manager

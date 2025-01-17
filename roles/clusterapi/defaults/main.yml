@@ -7,7 +7,7 @@ clusterapi_core_components: "{{ clusterapi_core_repo }}/releases/download/{{ clu
 
 # The repo, version and manifest URL for the Cluster API OpenStack provider components
 clusterapi_openstack_repo: https://github.com/kubernetes-sigs/cluster-api-provider-openstack
-clusterapi_openstack_version: v0.10.5
+clusterapi_openstack_version: v0.11.3
 clusterapi_openstack_components: "{{ clusterapi_openstack_repo }}/releases/download/{{ clusterapi_openstack_version }}/infrastructure-components.yaml"
 
 # The diagnostics address for Cluster API components

@@ -10,7 +10,7 @@ velero_enabled: false
 
 # Velero CLI archive URL
 velero_cli_repo: https://github.com/vmware-tanzu/velero
-velero_cli_version: v1.15.1
+velero_cli_version: v1.15.2
 velero_cli_os: "{{ ansible_system | lower }}"
 velero_cli_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
 velero_cli_archive_name: >-

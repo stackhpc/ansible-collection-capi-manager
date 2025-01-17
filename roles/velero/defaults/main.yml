@@ -89,7 +89,7 @@ velero_default_backup_storage_location: >-
 # Velero Helm chart config
 velero_chart_name: velero
 velero_chart_repo: https://vmware-tanzu.github.io/helm-charts
-velero_chart_version: 8.2.0
+velero_chart_version: 8.3.0
 velero_release_namespace: velero
 velero_release_name: velero
 velero_wait_timeout: 10m

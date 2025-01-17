@@ -3,7 +3,7 @@
 # The chart to use
 capi_cluster_chart_repo: https://azimuth-cloud.github.io/capi-helm-charts
 capi_cluster_chart_name: openstack-cluster
-capi_cluster_chart_version: 0.12.2
+capi_cluster_chart_version: 0.13.0
 
 # Release information for the cluster release
 capi_cluster_release_namespace: default

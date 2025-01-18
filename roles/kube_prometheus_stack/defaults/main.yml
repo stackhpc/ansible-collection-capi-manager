@@ -3,7 +3,7 @@
 # The chart to use
 kube_prometheus_stack_chart_repo: https://prometheus-community.github.io/helm-charts
 kube_prometheus_stack_chart_name: kube-prometheus-stack
-kube_prometheus_stack_chart_version: 68.1.0
+kube_prometheus_stack_chart_version: 68.2.1
 
 # Release information
 kube_prometheus_stack_release_namespace: monitoring-system

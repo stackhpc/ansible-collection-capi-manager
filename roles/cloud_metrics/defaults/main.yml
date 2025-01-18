@@ -3,7 +3,7 @@
 # The chart to use for Grafana
 cloud_metrics_grafana_chart_repo: https://grafana.github.io/helm-charts
 cloud_metrics_grafana_chart_name: grafana
-cloud_metrics_grafana_chart_version: 8.6.4
+cloud_metrics_grafana_chart_version: 8.8.4
 
 # Release information for the Grafana release
 # By default, deploy into the same namespace as Azimuth
